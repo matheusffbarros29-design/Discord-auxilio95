@@ -396,31 +396,52 @@ function abrirApp(pkg){
   setTimeout(()=>document.body.removeChild(iframe),2000);
 }
 
-function injetar(tipo){
-  const log=document.getElementById("log");
-  log.innerHTML="";
-  const linhas=[
+function injetar(tipo) {
+  const log = document.getElementById("log");
+  log.innerHTML = "";
+  
+  const linhas = [
     "[+] Inicializando módulo...",
     "[+] Sincronizando memória...",
     "[+] Aplicando configurações...",
     "[+] Verificando segurança...",
     "[+] Injeção em andamento..."
   ];
-  let i=0;
-  const intervalo=setInterval(()=>{
-    if(i<linhas.length){
-      log.innerHTML+=linhas[i]+"<br>";
-      log.scrollTop=log.scrollHeight;
+  
+  let i = 0;
+  const intervalo = setInterval(() => {
+    if (i < linhas.length) {
+      log.innerHTML += linhas[i] + "<br>";
+      log.scrollTop = log.scrollHeight;
       i++;
-    }else{
+    } else {
       clearInterval(intervalo);
-      log.innerHTML+="[✓] Concluído<span class='cursor'>_</span>";
-      setTimeout(()=>{
-        if(tipo==="ff") abrirApp("com.dts.freefireth");
-        if(tipo==="ffmax") abrirApp("com.dts.freefiremax");
-      },500);
+      log.innerHTML += "<span style='color: white;'>[✓] Concluído</span><span class='cursor'>_</span>";
+      
+      // TENTATIVA DE ABERTURA
+      const urlApp = tipo === "ff" ? "freefire://" : "freefiremax://";
+      
+      setTimeout(() => {
+        // Tentativa 1: Redirecionamento direto
+        window.location.href = urlApp;
+
+        // Tentativa 2: Criar um link invisível e "clicar" nele (Melhor para iOS/Android)
+        const a = document.createElement("a");
+        a.href = urlApp;
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        
+        // Fallback: Se o app não abrir, avisa o usuário
+        setTimeout(() => {
+            if (!document.hidden) { // Se a página ainda estiver visível, o app não abriu
+                log.innerHTML += "<br><span style='color: yellow;'>[!] Clique abaixo se o app não abrir:</span><br>";
+                log.innerHTML += `<a href="${urlApp}" style="color:cyan; font-weight:bold;">ABRIR AGORA</a>`;
+            }
+        }, 2500);
+      }, 500);
     }
-  },700);
+  }, 700);
 }
 
   // >>Integrate
